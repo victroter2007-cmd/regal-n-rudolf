@@ -237,11 +237,12 @@ function playerAttack(type) {
   updateHP();
 
   if (rudolf.hp <= 0) {
-    setTimeout(() => {
-      setText("¡Rudolf fue derrotado! 🎉");
-    }, 600);
-    return;
-  }
+  setTimeout(() => {
+    setText("¡Rudolf fue derrotado! 🎉");
+    showQR();
+  }, 600);
+  return;
+}
 
   setTimeout(enemyTurn, 1000);
 }
