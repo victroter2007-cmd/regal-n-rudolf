@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Regalín vs Rudolf</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #e0f7fa;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    #game {
+      max-width: 420px;
+      margin: auto;
+      height: 100vh;
+      background: white;
+      border: 4px solid #222;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #battlefield {
+      flex: 1;
+      position: relative;
+      background: linear-gradient(#b3e5fc, #c8e6c9);
+      padding: 10px;
+    }
+
+    .character {
+      position: absolute;
+      width: 110px;
+      text-align: center;
+    }
+
+    #rudolf {
+      top: 20px;
+      right: 20px;
+    }
+
+    #regalin {
+      bottom: 20px;
+      left: 20px;
+    }
+
+    .sprite {
+      font-size: 64px;
+    }
+
+    .hp-bar {
+      height: 8px;
+      background: #bbb;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .hp {
+      height: 100%;
+      width: 100%;
+      background: #4caf50;
+      transition: width 0.3s;
+    }
+
+    #ui {
+      border-top: 4px solid #222;
+      background: #f5f5f5;
+      padding: 8px;
+    }
+
+    #text {
+      min-height: 48px;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    button {
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #222;
+      border-radius: 6px;
+      background: white;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+    }
+
+    button:active {
+      background: #ddd;
+    }
+  </style>
+</head>
+
+<body>
+<div id="game">
+
+  <div id="battlefield">
+    <div id="rudolf" class="character">
+      <div class="sprite">🦌</div>
+      <div>Rudolf</div>
+      <div class="hp-bar">
+        <div id="hp-rudolf" class="hp"></div>
+      </div>
+    </div>
+
+    <div id="regalin" class="character">
+      <div class="sprite">🎁</div>
+      <div>Regalín</div>
+      <div class="hp-bar">
+        <div id="hp-regalin" class="hp"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ui">
+    <div id="text">¡Un Rudolf salvaje apareció!</div>
+    <div class="buttons">
+      <button onclick="playerAttack('envolver')">Envolver</button>
+      <button onclick="playerAttack('chispa')">Chispa</button>
+      <button onclick="playerAttack('defender')">Defender</button>
+      <button onclick="playerAttack('alegria')">Alegría</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* =========================
+   ESTADO DEL JUEGO
+========================= */
+
+const regalin = {
+  hp: 100,
+  maxHp: 100
+};
+
+const rudolf = {
+  hp: 100,
+  maxHp: 100
+};
+
+let playerTurn = true;
+
+/* =========================
+   UTILIDADES
+========================= */
+
+function updateHP() {
+  document.getElementById("hp-regalin").style.width =
+    (regalin.hp / regalin.maxHp) * 100 + "%";
+
+  document.getElementById("hp-rudolf").style.width =
+    (rudolf.hp / rudolf.maxHp) * 100 + "%";
+}
+
+function setText(text) {
+  document.getElementById("text").innerText = text;
+}
+
+function disableButtons(disabled) {
+  document.querySelectorAll("button").forEach(btn => {
+    btn.disabled = disabled;
+  });
+}
+
+/* =========================
+   TURNO DEL JUGADOR
+========================= */
+
+function playerAttack(type) {
+  if (!playerTurn) return;
+
+  playerTurn = false;
+  disableButtons(true);
+
+  let damage = 0;
+
+  switch (type) {
+    case "envolver":
+      damage = 18;
+      setText("Regalín usó Envolver 🎀");
+      break;
+
+    case "chispa":
+      damage = 14;
+      setText("Regalín lanzó Chispa ✨");
+      break;
+
+    case "defender":
+      regalin.hp = Math.min(regalin.maxHp, regalin.hp + 12);
+      setText("Regalín se protegió 🛡️");
+      break;
+
+    case "alegria":
+      damage = 10;
+      regalin.hp = Math.min(regalin.maxHp, regalin.hp + 6);
+      setText("Regalín compartió Alegría 🎄");
+      break;
+  }
+
+  rudolf.hp = Math.max(0, rudolf.hp - damage);
+  updateHP();
+
+  if (rudolf.hp <= 0) {
+    setTimeout(() => {
+      setText("¡Rudolf fue derrotado! 🎉");
+    }, 600);
+    return;
+  }
+
+  setTimeout(enemyTurn, 1000);
+}
+
+/* =========================
+   TURNO DEL ENEMIGO
+========================= */
+
+function enemyTurn() {
+  const damage = Math.floor(Math.random() * 8) + 10;
+  regalin.hp = Math.max(0, regalin.hp - damage);
+
+  setText("Rudolf atacó con Nariz Roja 🔴");
+  updateHP();
+
+  if (regalin.hp <= 0) {
+    setTimeout(() => {
+      setText("Regalín se quedó sin energía...");
+    }, 600);
+    return;
+  }
+
+  playerTurn = true;
+  disableButtons(false);
+}
+
+/* =========================
+   INICIO
+========================= */
+
+updateHP();
+</script>
+
+</body>
+</html>
